@@ -1,0 +1,58 @@
+---
+- name: Deploy Dockerized app
+  hosts: app
+  become: true
+  gather_facts: yes
+
+  vars:
+    image_repo: ""          # למשל: ozposner/myapp
+    image_tag: "latest"     # למשל: manual-test או v1
+    app_name: "myapp"
+    host_port: 80
+    container_port: 5000
+    use_registry_auth: false
+    registry_username: ""
+    registry_password: ""
+
+  tasks:
+    - name: Ensure base packages (Ubuntu/Debian)
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - python3-pip
+          - python3-docker
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Ensure Docker service running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: (Optional) Docker login to DockerHub if private repo
+      when: use_registry_auth | bool
+      community.docker.docker_login:
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+
+    - name: Pull image
+      community.docker.docker_image:
+        name: "{{ image_repo }}"
+        tag: "{{ image_tag }}"
+        source: pull
+
+    - name: Run/Update container
+      community.docker.docker_container:
+        name: "{{ app_name }}"
+        image: "{{ image_repo }}:{{ image_tag }}"
+        state: started
+        recreate: true
+        pull: true
+        restart_policy: always
+        env:
+          PORT: "{{ container_port }}"
+        ports:
+          - "{{ host_port }}:{{ container_port }}"
+

@@ -1,0 +1,4 @@
+*.pem
+*.key
+*.env
+.vault_pass

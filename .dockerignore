@@ -1,0 +1,37 @@
+# VCS
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.venv*/
+env/
+venv/
+*.log
+
+# System/IDE
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Secrets / env
+.env
+*.env
+*.pem
+*.key
+
+# Tests / docs (אם לא צריך בבילד)
+tests/
+docs/
+
+# Node (אם יש פרונט נפרד)
+node_modules/
+build/
+dist/
+ansible/
+
